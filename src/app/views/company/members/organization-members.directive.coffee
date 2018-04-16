@@ -16,9 +16,8 @@ DashboardOrganizationMembersCtrl = ($scope, $uibModal, $sce, $translate,  MnoeOr
   # Scope Management
   #====================================
   # Initialize the data used by the directive
-  $scope.initialize = (members, teams = nil) ->
+  $scope.initialize = (members) ->
     $scope.members = members
-    $scope.teams = teams if teams
     $scope.isLoading = false
     updateNbOfSuperAdmin()
 
@@ -275,11 +274,21 @@ DashboardOrganizationMembersCtrl = ($scope, $uibModal, $sce, $translate,  MnoeOr
     if newValue?
       # Get the new teams for this organization
       MnoeTeams.getTeams().then(
-        ->
-          $scope.initialize(MnoeOrganizations.selected.organization.members, MnoeTeams.teams)
+        (response) ->
+          angular.copy(response, $scope.teams)
+          $scope.initialize(MnoeOrganizations.selected.organization.members)
       )
   )
 
+  $scope.$watch(
+    () -> MnoeTeams.teams.length,
+    (newValue) ->
+      if newValue?
+        MnoeTeams.getTeams().then(
+          (response) ->
+            angular.copy(response, $scope.teams)
+        )
+  )
 
 angular.module 'mnoEnterpriseAngular'
   .directive('dashboardOrganizationMembers', ->
