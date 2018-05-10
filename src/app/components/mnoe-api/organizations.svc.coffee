@@ -1,6 +1,6 @@
 # Service for managing the users.
 angular.module 'mnoEnterpriseAngular'
-  .service 'MnoeOrganizations', ($location, $state, $cookies, $log, $q, MnoeApiSvc, MnoeCurrentUser) ->
+  .service 'MnoeOrganizations', ($location, $state, $cookies, $log, $q, MnoeApiSvc, MnoeCurrentUser, ORG_REQUIREMENTS) ->
     _self = @
 
     organizationsApi = MnoeApiSvc.all('organizations')
@@ -78,6 +78,17 @@ angular.module 'mnoEnterpriseAngular'
           angular.extend(_.find(MnoeCurrentUser.user.organizations, { id: response.organization.id }), response.organization)
 
           response
+      )
+
+    # Is main address required?
+    @mainAddressRequired = ->
+      _.includes(ORG_REQUIREMENTS, 'Main Address')
+
+    # Update the main address
+    @updateMainAddress = (mainAddress) ->
+      MnoeApiSvc.one('organizations', _self.selectedId).doPUT({"main_address": mainAddress}, '/update_main_address').then(
+        (response) ->
+          response.plain()
       )
 
     # Update the credit card
